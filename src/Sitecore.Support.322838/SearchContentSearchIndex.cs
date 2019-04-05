@@ -88,20 +88,25 @@ namespace Sitecore.Support.ContentSearch.Client.Pipelines.Search
                                 where i.Paths.Contains(args.Root.ID)
                                 select i;
                   }
-                  foreach (SitecoreUISearchResultItem item2 in Enumerable.TakeWhile(queryable, (SitecoreUISearchResultItem result) => results.Count < args.Limit))
+                  foreach (SitecoreUISearchResultItem item2 in queryable)
                   {
-                    if (!UserOptions.View.ShowHiddenItems)
-                    {
-                      Item sitecoreItem = GetSitecoreItem(item2);
-                      if (sitecoreItem != null && IsHidden(sitecoreItem))
-                      {
-                        continue;
-                      }
-                    }
+                    
                     SitecoreUISearchResultItem sitecoreUISearchResultItem = results.FirstOrDefault((SitecoreUISearchResultItem r) => r.ItemId == item2.ItemId);
                     if (sitecoreUISearchResultItem == null)
                     {
-                      results.Add(item2);
+                      if (results.Count < args.Limit)
+                      {
+                        if (!UserOptions.View.ShowHiddenItems)
+                        {
+                          Item sitecoreItem = GetSitecoreItem(item2);
+                          if (sitecoreItem != null && IsHidden(sitecoreItem))
+                          {
+                            continue;
+                          }
+                        }
+
+                        results.Add(item2);
+                      }
                     }
                     else if (args.ContentLanguage != (Language)null && !args.ContentLanguage.Name.IsNullOrEmpty())
                     {
